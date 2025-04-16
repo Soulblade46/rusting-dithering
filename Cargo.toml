@@ -10,5 +10,5 @@ image = "0.25.6"
 vercel_runtime = { version = "1" }
 [[bin]]
 name = "main"
-path = "src/main.rs"
+path = "api/main.rs"
 
