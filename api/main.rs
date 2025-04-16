@@ -5,7 +5,7 @@ use vercel_runtime::{run, Body, Error, Request, Response, StatusCode};
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    run(handler).await
+    run(select_algorithm).await
 }
 
 // Convert an image to grayscale
