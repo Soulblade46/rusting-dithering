@@ -1,11 +1,37 @@
-use image::{DynamicImage, GenericImageView, GrayImage, ImageBuffer, Luma};
+use base64::{engine::general_purpose, Engine as _};
+use image::{DynamicImage, GenericImageView, GrayImage, ImageBuffer, Luma, load_from_memory};
 use std::path::Path;
 use serde_json::json;
-use vercel_runtime::{run, Body, Error, Request, Response, StatusCode};
+use serde::Deserialize;
+use vercel_runtime::{run, Body, Error, Request, RequestPayloadExt, Response, StatusCode};
+
+#[derive(Deserialize)]
+struct Input {
+    alg_type: String,
+    image: String,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    run(select_algorithm).await
+    run(handler).await
+}
+
+pub async fn handler(req: Request) -> Result<Response<Body>, Error> {
+    let body = req.body();
+    let input: Input = serde_json::from_slice(body)?;
+    let decoded_bytes = general_purpose::STANDARD.decode(input.image)?;
+    let img = load_from_memory(&decoded_bytes)?;
+    //let edited_image: &ImageBuffer<Luma<u8>, Vec<u8>> = & select_algorithm(req.into_body().get);
+    Ok(Response::builder()
+        .status(StatusCode::OK)
+        .header("Content-Type", "application/json")
+        .body(
+            json!({
+              "message": "你好，世界"
+            })
+            .to_string()
+            .into(),
+        )?)
 }
 
 // Convert an image to grayscale

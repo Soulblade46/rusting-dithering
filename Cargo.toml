@@ -6,7 +6,9 @@ edition = "2021"
 [dependencies]
 tokio = { version = "1", features = ["macros"] }
 serde_json = { version = "1", features = ["raw_value"] }
-image = "0.25.6"
+serde = {version = "1", features = ["derive"] }
+image = "0.23.14"
+base64 = "0.22.1"
 vercel_runtime = { version = "1" }
 [[bin]]
 name = "main"
