@@ -17,10 +17,12 @@ async fn main() -> Result<(), Error> {
 }
 
 pub async fn handler(req: Request) -> Result<Response<Body>, Error> {
+    /*/
     let body = req.body();
     let input: Input = serde_json::from_slice(body)?;
     let decoded_bytes = general_purpose::STANDARD.decode(input.image)?;
     let img = load_from_memory(&decoded_bytes)?;
+    */
     //let edited_image: &ImageBuffer<Luma<u8>, Vec<u8>> = & select_algorithm(req.into_body().get);
     Ok(Response::builder()
         .status(StatusCode::OK)
