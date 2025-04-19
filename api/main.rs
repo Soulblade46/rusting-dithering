@@ -2,8 +2,8 @@ use base64::{engine::general_purpose, Engine as _};
 use image::{DynamicImage, GenericImageView, GrayImage, ImageBuffer, Luma, load_from_memory};
 use std::path::Path;
 use serde_json::json;
-use serde::Deserialize;
-use vercel_runtime::{run, Body, Error, Request, RequestPayloadExt, Response, StatusCode};
+use serde::{Deserialize,Serialize};
+use vercel_runtime::{run, Body, Error, Request, RequestPayloadExt, Response, StatusCode, http::bad_request};
 
 #[derive(Deserialize)]
 struct Input {
@@ -17,12 +17,13 @@ async fn main() -> Result<(), Error> {
 }
 
 pub async fn handler(req: Request) -> Result<Response<Body>, Error> {
-    /*/
     let body = req.body();
-    let input: Input = serde_json::from_slice(body)?;
-    let decoded_bytes = general_purpose::STANDARD.decode(input.image)?;
-    let img = load_from_memory(&decoded_bytes)?;
-    */
+    let input: Input = match serde_json::from_slice(body) {
+        Ok(input) => input,
+        Err(_) => return err(),
+    };
+    let decoded_bytes = general_purpose::STANDARD.decode(input.image);
+    //let img = load_from_memory(&decoded_bytes);
     //let edited_image: &ImageBuffer<Luma<u8>, Vec<u8>> = & select_algorithm(req.into_body().get);
     Ok(Response::builder()
         .status(StatusCode::OK)
@@ -34,6 +35,19 @@ pub async fn handler(req: Request) -> Result<Response<Body>, Error> {
             .to_string()
             .into(),
         )?)
+}
+
+fn err() -> Result<Response<Body>, Error> {
+    bad_request(APIError {
+        message: "Invalid payload",
+        code: "invalid_payload",
+    })
+}
+
+#[derive(Serialize)]
+pub struct APIError {
+    pub message: &'static str,
+    pub code: &'static str,
 }
 
 // Convert an image to grayscale
